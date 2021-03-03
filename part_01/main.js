@@ -1,7 +1,7 @@
 function initialyze(){
     var init = []
     for(var i = 0; i < 100; i++){
-        temp = {gen: [], fitness: 0}
+        let temp = {gen: [], fitness: 0}
         for(var j = 0; j < 8; j++){
             temp.gen.push(generateRandom(3))
         }
@@ -49,11 +49,22 @@ function evaluate(population){
 
     return population
 }
+function checkFinish(population){
+    for(var i = 0; i<population.length;i++){
+        if(population[i].fitness == 0){
+            return population[i];
+        }
+    }
+    return "";
+}
 
 function main(){
     var population = initialyze();
     population = evaluate(population);
-    console.log(population)
+    var optimal = checkFinish(population);
+    if(optimal != ""){
+        console.log("OPTIMAL WAS FOUND : \n" + optimal.gen);
+    }
 }
 
 main()
