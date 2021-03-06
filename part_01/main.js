@@ -1,3 +1,4 @@
+//function to initialyze the population with random configurations
 function initialyze(){
     var init = []
     for(var i = 0; i < 100; i++){
@@ -10,6 +11,7 @@ function initialyze(){
     return init
 }
 
+//function to generate a random string bit
 function generateRandom(range){
     var key = ""
     for(var i = 0; i < range; i++){
@@ -19,12 +21,14 @@ function generateRandom(range){
     return key
 }
 
+// helper function to generate a random bit
 function getRandomArbitrary(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
+//function to calculate fitness of a given configuration
 function checkQueensAttack(queens){
     var res = 0;
     for(var i = 0; i < queens.length; i++){
@@ -38,6 +42,7 @@ function checkQueensAttack(queens){
     return res;
 }
 
+//function to calculate fitness of a population
 function evaluate(population){
     population.forEach(ind => {
         let decQueens = []
@@ -49,8 +54,9 @@ function evaluate(population){
 
     return population
 }
+//function to check if theres a optimal solution
 function checkFinish(population){
-    for(var i = 0; i<population.length;i++){
+    for(var i = 0; i < population.length; i++){
         if(population[i].fitness == 0){
             return population[i];
         }
@@ -58,13 +64,27 @@ function checkFinish(population){
     return "";
 }
 
+//function to select parents for a generation given a population
+function chooseParents(population){
+    var candidates = [];
+    for(var i = 0; i < 5; i++){
+        var index = getRandomArbitrary(0, population.length);
+        candidates.push(population[index]);
+    }
+    candidates.sort((a, b) => (a.fitness - b.fitness));
+    var parents = [candidates[0], candidates[1]];
+    return parents;
+
+}
+
 function main(){
     var population = initialyze();
     population = evaluate(population);
     var optimal = checkFinish(population);
-    if(optimal != ""){
-        console.log("OPTIMAL WAS FOUND : \n" + optimal.gen);
+    for(var i = 0; i < 10000 && optimal == ""; i++){
+        var parents = chooseParents(population);
     }
+
 }
 
 main()
