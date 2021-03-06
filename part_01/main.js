@@ -98,17 +98,45 @@ function makeCrossOver(parents) {
     return parents;
 }
 
+//function to mutate children
+function mutate(children){
+    if(getRandomArbitrary(0, 101) <= 40){
+        var mutatePoint = getRandomArbitrary(1, children[0].gen.length);
+        
+        var temp = children[0].gen[mutatePoint];
+        children[0].gen[mutatePoint] = children[1].gen[mutatePoint];
+        children[1].gen[mutatePoint] = temp;
+        
+        children = evaluate(children);
+    }
+    return children;
+}
+
 function main(){
     var population = initialyze();
     population = evaluate(population);
     var optimal = ""
-    for(var i = 0; i < 10000 && optimal == ""; i++){
+    var i = 0;
+    for(i; i < 10000 && optimal == ""; i++){
         optimal = checkFinish(population);
         var parents = chooseParents(population);
         var children = makeCrossOver(parents);
+        var children = mutate(children);
+        
+        population.push(children[0]);
+        population.push(children[1]);
+        
+        population.sort((a, b) => (a.fitness - b.fitness));
+        population.pop();
+        population.pop();
     }
-
-    console.log(optimal)
+    if(optimal == ""){
+        population.sort((a, b) => (a.fitness - b.fitness));
+        console.log(population[0])
+    }else{
+        console.log(i)
+        console.log(optimal);
+    }
 }
 
 main()
