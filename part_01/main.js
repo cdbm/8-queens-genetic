@@ -21,7 +21,7 @@ function generateRandom(range){
     return key
 }
 
-// helper function to generate a random bit
+// helper function to generate a random number
 function getRandomArbitrary(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
@@ -77,14 +77,38 @@ function chooseParents(population){
 
 }
 
+//function to Crossover parents if necessary
+function makeCrossOver(parents) {
+    if(getRandomArbitrary(0, 101) <= 90){
+        var cutPoint  = getRandomArbitrary(1, parents[0].gen.length);
+        var parent0_p1 = parents[0].gen.slice(0, cutPoint);
+        var parent0_p2 = parents[0].gen.slice(cutPoint, parents[0].length);
+       
+        var parent1_p1 = parents[1].gen.slice(0, cutPoint);
+        var parent1_p2 = parents[1].gen.slice(cutPoint, parents[1].length);
+
+        var newParent0 = parent1_p1.concat(parent0_p2);
+        var newParent1 = parent0_p1.concat(parent1_p2);
+
+        parents[0].gen = newParent0;
+        parents[1].gen = newParent1;
+        parents = evaluate(parents);   
+    }
+
+    return parents;
+}
+
 function main(){
     var population = initialyze();
     population = evaluate(population);
-    var optimal = checkFinish(population);
+    var optimal = ""
     for(var i = 0; i < 10000 && optimal == ""; i++){
+        optimal = checkFinish(population);
         var parents = chooseParents(population);
+        var children = makeCrossOver(parents);
     }
 
+    console.log(optimal)
 }
 
 main()
