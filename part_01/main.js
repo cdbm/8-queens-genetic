@@ -4,11 +4,17 @@ function initialyze(){
     for(var i = 0; i < 100; i++){
         let temp = {gen: [], fitness: 0}
         for(var j = 0; j < 8; j++){
-            temp.gen.push(generateRandom(3))
+            var num = generateRandom(3);
+            if(!temp.gen.includes(num)){
+                temp.gen.push(num);
+            }else{
+                j--;
+            }
         }
-        init.push(temp)
+        init.push(temp);
     }
-    return init
+    //console.log(init);
+    return init;
 }
 
 //function to generate a random string bit
@@ -93,7 +99,8 @@ function makeCrossOver(parents) {
 
         var newParent0 = parent1_p1.concat(parent0_p2);
         var newParent1 = parent0_p1.concat(parent1_p2);
-
+        newParent0 = excludReps(newParent0);
+        newParent1 = excludReps(newParent1);
         parents[0].gen = newParent0;
         parents[1].gen = newParent1;
         parents = evaluate(parents);   
@@ -101,7 +108,29 @@ function makeCrossOver(parents) {
 
     return parents;
 }
-
+function excludReps(formation){
+    var positions = {"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0};
+    for(var i in formation){
+        positions[parseInt(formation[i],2)]++;
+    }
+    //console.log(positions);
+    for(var i in formation){
+        if(positions[parseInt(formation[i],2)] >= 2){
+            for(var k = 0; k< 8; k++){
+                if(positions[k] == 0){
+                    positions[k]++;
+                    var aux = Number(k).toString(2);
+                    while(aux.length < 3){
+                        aux = "0" + aux;
+                    }
+                    formation[i] = aux;
+                    break;
+                }
+            }
+        }
+    }
+    return formation;
+}
 //function to mutate children
 function mutate(children){
     if(getRandomArbitrary(0, 101) <= 40){
@@ -125,7 +154,7 @@ function main(){
         optimal = checkFinish(population);
         var parents = chooseParents(population);
         var children = makeCrossOver(parents);
-        var children = mutate(children);
+        children = mutate(children);
         
         population.push(children[0]);
         population.push(children[1]);
@@ -142,5 +171,4 @@ function main(){
         console.log(optimal);
     }
 }
-
 main()
