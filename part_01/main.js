@@ -69,7 +69,11 @@ function chooseParents(population){
     var candidates = [];
     for(var i = 0; i < 5; i++){
         var index = getRandomArbitrary(0, population.length);
-        candidates.push(population[index]);
+        if(!candidates.includes(index)){
+            candidates.push(population[index]);
+        }else{
+            i--;
+        }
     }
     candidates.sort((a, b) => (a.fitness - b.fitness));
     var parents = [candidates[0], candidates[1]];
