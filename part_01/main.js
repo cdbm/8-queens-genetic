@@ -1,7 +1,7 @@
 //function to initialyze the population with random configurations
-function initialyze(){
+function initialyze(iniNum = 100){
     var init = []
-    for(var i = 0; i < 100; i++){
+    for(var i = 0; i < iniNum; i++){
         let temp = {gen: [], fitness: 0}
         for(var j = 0; j < 8; j++){
             var num = generateRandom(3);
@@ -144,9 +144,8 @@ function mutate(children){
     }
     return children;
 }
-
-function main(){
-    var population = initialyze();
+function doRun(gen = 100){
+    var population = initialyze(gen);
     population = evaluate(population);
     var optimal = ""
     var i = 0;
@@ -165,10 +164,28 @@ function main(){
     }
     if(optimal == ""){
         population.sort((a, b) => (a.fitness - b.fitness));
-        console.log(population[0])
+        population[0]["interation"] = -1;
+        return population[0];
     }else{
-        console.log(i)
-        console.log(optimal);
+        //console.log("Optimal solution was found in : " + i)
+        optimal["interation"] = i;
+        return optimal;
     }
+}
+function main(tryes = 10,gen = 100){
+    var toCalc = [];
+    var bullseye = 0;
+    var bullMean = 0;
+    for(var i = 0; i< tryes; i++){
+        toCalc.push(doRun(gen));
+        if(toCalc[i].fitness == 0){
+            bullseye++;
+            bullMean += toCalc[i].interation;
+        }
+    }
+    console.log(toCalc);
+    console.log("Accuracy of : " + ((bullseye/tryes)*100) + "%");
+    console.log("Mean of optimal shots : " + (bullMean/tryes)); 
+    
 }
 main()
