@@ -1,3 +1,5 @@
+const evaluator = require("../evaluate");
+
 //function to initialyze the population with random configurations
 function initialyze(iniNum = 100){
     var init = []
@@ -62,12 +64,21 @@ function evaluate(population){
 }
 //function to check if theres a optimal solution
 function checkFinish(population){
+    var converged = 0;
+    var optimal;
     for(var i = 0; i < population.length; i++){
         if(population[i].fitness == 0){
-            return population[i];
+            optimal = population[i];
+            converged++;
         }
     }
-    return "";
+    if(converged == 0) {
+        return "";
+    }
+    else{
+        optimal.convergedIndividues = converged
+        return optimal;
+    }
 }
 
 //function to select parents for a generation given a population
@@ -149,8 +160,9 @@ function doRun(gen = 100){
     population = evaluate(population);
     var optimal = ""
     var i = 0;
+    optimal = checkFinish(population);
+
     for(i; i < 10000 && optimal == ""; i++){
-        optimal = checkFinish(population);
         var parents = chooseParents(population);
         var children = makeCrossOver(parents);
         children = mutate(children);
@@ -161,17 +173,22 @@ function doRun(gen = 100){
         population.sort((a, b) => (a.fitness - b.fitness));
         population.pop();
         population.pop();
+        optimal = checkFinish(population);
     }
+
     if(optimal == ""){
         population.sort((a, b) => (a.fitness - b.fitness));
-        population[0]["interation"] = -1;
+        population[0]["iteration"] = -1;
+        population[0]["convergedIndividues"] = 0;
         return population[0];
     }else{
         //console.log("Optimal solution was found in : " + i)
-        optimal["interation"] = i;
+        optimal["iteration"] = i;
         return optimal;
     }
 }
+
+
 function main(tryes = 10,gen = 100){
     var toCalc = [];
     var bullseye = 0;
@@ -180,12 +197,13 @@ function main(tryes = 10,gen = 100){
         toCalc.push(doRun(gen));
         if(toCalc[i].fitness == 0){
             bullseye++;
-            bullMean += toCalc[i].interation;
+            bullMean += toCalc[i].iteration;
         }
     }
+
     console.log(toCalc);
     console.log("Accuracy of : " + ((bullseye/tryes)*100) + "%");
-    console.log("Mean of optimal shots : " + (bullMean/tryes)); 
-    
+    console.log("Mean of converged Iterations : " + (bullMean/tryes));
+    evaluator.evaluate(toCalc);
 }
 main()
