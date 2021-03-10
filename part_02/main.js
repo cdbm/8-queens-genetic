@@ -3,14 +3,8 @@ function initialyze(iniNum = 100){
     var init = []
     for(var i = 0; i < iniNum; i++){
         let temp = {gen: [], fitness: 0}
-        for(var j = 0; j < 8; j++){
-            var num = generateRandom(3);
-            if(!temp.gen.includes(num)){
-                temp.gen.push(num);
-            }else{
-                j--;
-            }
-        }
+        var insertion = ["000","001","010","011","100","101","110","111"];
+        temp.gen = shuffle(insertion);
         init.push(temp);
     }
     //console.log(init);
@@ -108,7 +102,7 @@ function makeCrossOver(parents) {
 
     return parents;
 }
-function excludReps(formation){
+function excludReps(formation){ // change repeated occurs in array
     var positions = {"0":0,"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0};
     for(var i in formation){
         positions[parseInt(formation[i],2)]++;
@@ -144,35 +138,7 @@ function mutate(children){
     }
     return children;
 }
-function doRun(gen = 100){
-    var population = initialyze(gen);
-    population = evaluate(population);
-    var optimal = ""
-    var i = 0;
-    for(i; i < 10000 && optimal == ""; i++){
-        optimal = checkFinish(population);
-        var parents = chooseParents(population);
-        var children = makeCrossOver(parents);
-        children = mutate(children);
-        
-        population.push(children[0]);
-        population.push(children[1]);
-        
-        population.sort((a, b) => (a.fitness - b.fitness));
-        population.pop();
-        population.pop();
-    }
-    if(optimal == ""){
-        population.sort((a, b) => (a.fitness - b.fitness));
-        population[0]["interation"] = -1;
-        return population[0];
-    }else{
-        //console.log("Optimal solution was found in : " + i)
-        optimal["interation"] = i;
-        return optimal;
-    }
-}
-function invertBetween(fon){
+function invertBetween(fon){ // invert a random subarray from gen
     var i = 0, j= 0;
     while(i == j){
         i = getRandomArbitrary(0, 7);
@@ -205,7 +171,7 @@ function invertBetween(fon){
     }
     return fon;
 }
-function tradeHouses(fon){
+function tradeHouses(fon){ // Trade 2 random elements in gen array, probably same as mutate.
     var i = 0, j= 0;
     while(i == j){
         i = getRandomArbitrary(0, 7);
@@ -215,6 +181,43 @@ function tradeHouses(fon){
     fon.gen[i] = fon.gen[j];
     fon.gen[j] = aux;
     return fon;
+}
+function eliminateWorst(candidates){ // Eliminate all occurs of the worst fitness
+    candidates.sort((a, b) => (a.fitness - b.fitness));
+    var worst = candidates[candidates.length-1].fitness;
+    while(candidates[candidates.length-1].fitness == worst){
+        candidates.pop();
+    }
+    return candidates;
+}
+/////////////////////////////////////////////////////////
+function doRun(gen = 100){
+    var population = initialyze(gen);
+    population = evaluate(population);
+    var optimal = ""
+    var i = 0;
+    for(i; i < 10000 && optimal == ""; i++){
+        optimal = checkFinish(population);
+        var parents = chooseParents(population);
+        var children = makeCrossOver(parents);
+        children = mutate(children);
+        
+        population.push(children[0]);
+        population.push(children[1]);
+        
+        population.sort((a, b) => (a.fitness - b.fitness));
+        population.pop();
+        population.pop();
+    }
+    if(optimal == ""){
+        population.sort((a, b) => (a.fitness - b.fitness));
+        population[0]["interation"] = -1;
+        return population[0];
+    }else{
+        //console.log("Optimal solution was found in : " + i)
+        optimal["interation"] = i;
+        return optimal;
+    }
 }
 function main(tryes = 1,gen = 100){
     var time1 = new Date().getTime();
@@ -234,10 +237,4 @@ function main(tryes = 1,gen = 100){
     console.log("Mean of optimal shots : " + (bullMean/tryes)); 
     console.log("It took " + (time2-time1)/1000 + " seconds to run this.");
 }
-//main(100,100)
-console.log(invertBetween({gen: [
-    '001', '000',
-    '100', '101',
-    '111', '010',
-    '110', '011'
-  ]}))
+main(100,100)
