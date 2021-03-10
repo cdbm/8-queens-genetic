@@ -27,9 +27,10 @@ function getRandomArbitrary(min, max) {
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min)) + min;
 }
-function shuffle(array) { // helper function to shuffle an array
-    array.sort(() => Math.random() - 0.5);
-  }
+function shuffle(array) {
+  array.sort(() => Math.random() - 0.5);
+  return array;
+}
 
 //function to calculate fitness of a given configuration
 function checkQueensAttack(queens){
