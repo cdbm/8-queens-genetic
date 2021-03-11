@@ -1,4 +1,3 @@
-const { to } = require("mathjs");
 const evaluator = require("../evaluate");
 //function to initialyze the population with random configurations
 function initialyze(iniNum = 100){
@@ -79,21 +78,58 @@ function checkFinish(population){
     }
 }
 
-//function to select parents for a generation given a population
-function chooseParents(population){
-    var candidates = [];
-    for(var i = 0; i < 5; i++){
-        var index = getRandomArbitrary(0, population.length);
-        if(!candidates.includes(index)){
-            candidates.push(population[index]);
-        }else{
-            i--;
+function chooseParentsByRoulette(population){
+    var candidates = chooseCandidates(population);
+    var probabilities = [];
+    var sumOfFitness = 0;
+    var previousProbabilities = 0;
+    var parents = [];
+
+    candidates.forEach(candidate => {
+        sumOfFitness += candidate.fitness;
+    })
+
+    candidates.sort((a, b) => a.fitness - b.fitness);
+
+    candidates.forEach(candidate => {
+        var prob = previousProbabilities + (candidate.fitness / sumOfFitness);
+        previousProbabilities = prob;
+        probabilities.push(1 - prob);
+    });
+
+    for(var i = 0; i < 2; i++){
+        var number = getRandomArbitrary(1, 11) / 10;
+        for(var j = 0; j < probabilities.length; j++){
+            if(number > probabilities[j]){
+                parents.push(candidates[j]);
+                break;
+            }
         }
     }
+
+    return parents;
+}
+
+//function to select parents for a generation given a population
+function chooseParents(population){
+    var candidates = chooseCandidates(population);
     candidates.sort((a, b) => (a.fitness - b.fitness));
     var parents = [candidates[0], candidates[1]];
     return parents;
 
+}
+
+function chooseCandidates(population) {
+    var candidates = [];
+    for (var i = 0; i < 5; i++) {
+        var index = getRandomArbitrary(0, population.length);
+        if (!candidates.includes(index)) {
+            candidates.push(population[index]);
+        } else {
+            i--;
+        }
+    }
+    return candidates;
 }
 
 //function to Crossover parents if necessary
@@ -186,17 +222,7 @@ function invertBetween(fon){ // invert a random subarray from gen
     }
     return fon;
 }
-function tradeHouses(fon){ // Trade 2 random elements in gen array, probably same as mutate.
-    var i = 0, j= 0;
-    while(i == j){
-        i = getRandomArbitrary(0, 7);
-        j = getRandomArbitrary(0, 7);
-    }
-    var aux = fon.gen[i];
-    fon.gen[i] = fon.gen[j];
-    fon.gen[j] = aux;
-    return fon;
-}
+
 function eliminateWorst(candidates){ // Eliminate all occurs of the worst fitness
     candidates.sort((a, b) => (a.fitness - b.fitness));
     var worst = candidates[candidates.length-1].fitness;
@@ -211,9 +237,10 @@ function doRun(gen = 100){
     population = evaluate(population);
     var optimal = ""
     var i = 0;
+    optimal = checkFinish(population);
     for(i; i < 10000 && optimal == ""; i++){
-        optimal = checkFinish(population);
-        var parents = chooseParents(population);
+        
+        var parents = chooseParentsByRoulette(population);
         var children = makeCrossOver(parents);
         children = mutate(children);
         
@@ -223,6 +250,7 @@ function doRun(gen = 100){
         population.sort((a, b) => (a.fitness - b.fitness));
         population.pop();
         population.pop();
+        optimal = checkFinish(population);
     }
     if(optimal == ""){
         population.sort((a, b) => (a.fitness - b.fitness));
@@ -253,5 +281,6 @@ function main(tryes = 1,gen = 100){
     console.log("Mean of converged Iterations : " + (bullMean/tryes));
     evaluator.evaluate(toCalc);
     console.log("It took " + (time2-time1)/1000 + " seconds to run this.");
+    
 }
-main(100,100)
+main(30,100)
