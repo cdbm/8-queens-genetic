@@ -195,7 +195,7 @@ function invertChildren(children){
         for(var i = 0; i < children.length; i++){
             
                 children[i] = invertBetween(children[i]);
-                children = evaluate(children)
+                children = evaluate(children);
         }
     }
     return children;
@@ -235,33 +235,32 @@ function invertBetween(fon){ // invert a random subarray from gen
     return fon;
 }
 
-function eliminateWorst(candidates){ // Eliminate all occurs of the worst fitness
+function eliminateWorst(candidates){
     candidates.sort((a, b) => (a.fitness - b.fitness));
     var worst = candidates[candidates.length-1].fitness;
-    while(candidates[candidates.length-1].fitness == worst){
-        candidates.pop();
-    }
+    //console.log("Worst is : " + worst);
+    candidates.pop();
+    candidates.pop();
     return candidates;
 }
 /////////////////////////////////////////////////////////
-function doRun(gen = 100){
+function doRun(gen = 100,interations = 10000){
     var population = initialyze(gen);
     population = evaluate(population);
     var optimal = ""
     var i = 0;
     optimal = checkFinish(population);
-    for(i; i < 10000 && optimal == ""; i++){
+    for(i; i < interations && optimal == ""; i++){
         
-        var parents = chooseParents(population);
+        //var parents = chooseParents(population);
+        var parents = chooseParentsByRoulette(population);
         var children = makeCrossOver(parents);
-        children = mutate(children);
-        
+        //children = mutate(children);
+        children = invertChildren(children);
         population.push(children[0]);
         population.push(children[1]);
         
-        population.sort((a, b) => (a.fitness - b.fitness));
-        population.pop();
-        population.pop();
+        population = eliminateWorst(population);
         optimal = checkFinish(population);
     }
     if(optimal == ""){
@@ -275,13 +274,13 @@ function doRun(gen = 100){
         return optimal;
     }
 }
-function main(tryes = 1,gen = 100){
+function main(tryes = 1,gen = 100, iterations = 10000){
     var time1 = new Date().getTime();
     var toCalc = [];
     var bullseye = 0;
     var bullMean = 0;
     for(var i = 0; i< tryes; i++){
-        toCalc.push(doRun(gen));
+        toCalc.push(doRun(gen,iterations));
         if(toCalc[i].fitness == 0){
             bullseye++;
             bullMean += toCalc[i].iteration;
@@ -296,3 +295,4 @@ function main(tryes = 1,gen = 100){
     
 }
 main(30,100)
+//main(respostas = , população = 100, iterações= 10000)
