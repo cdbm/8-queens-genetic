@@ -189,6 +189,18 @@ function mutate(children){
     }
     return children;
 }
+
+function invertChildren(children){
+    if(getRandomArbitrary(0, 101) <= 40){
+        for(var i = 0; i < children.length; i++){
+            
+                children[i] = invertBetween(children[i]);
+                children = evaluate(children)
+        }
+    }
+    return children;
+}
+
 function invertBetween(fon){ // invert a random subarray from gen
     var i = 0, j= 0;
     while(i == j){
@@ -240,7 +252,7 @@ function doRun(gen = 100){
     optimal = checkFinish(population);
     for(i; i < 10000 && optimal == ""; i++){
         
-        var parents = chooseParentsByRoulette(population);
+        var parents = chooseParents(population);
         var children = makeCrossOver(parents);
         children = mutate(children);
         
